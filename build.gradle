@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+}
+
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testRuntime
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile 'org.mariadb.jdbc:mariadb-java-client:2.3.0'
+    testCompile 'junit:junit:4.12'
+    testCompile 'info.cukes:cucumber-core:1.1.2'
+    testCompile 'info.cukes:cucumber-java:1.1.2'
+    testCompile 'info.cukes:cucumber-junit:1.1.2'
+    testCompile 'org.apache.commons:commons-text:1.6'
+}
+
+task cucumberer() {
+    dependsOn assemble, compileTestJava
+    doLast {
+        javaexec {
+            main = "cucumber.api.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = ['-f', 'pretty', '--glue', 'gradle.cucumber', 'src/test/resources/cucumber/']
+        }
+    }
+}
